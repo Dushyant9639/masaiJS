@@ -1,11 +1,7 @@
-// Book.js
-
-export function Book(title, author, year) {
+// Constructor function for Book
+// Parameters: title (string), author (string), isAvailable (boolean, defaults to true)
+export function Book(title, author, isAvailable = true) {
   this.title = title;
   this.author = author;
-  this.year = year;
+  this.isAvailable = isAvailable;
 }
-
-Book.prototype.getSummary = function () {
-  return `${this.title} by ${this.author}, published in ${this.year}`;
-};
