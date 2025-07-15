@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form action="/submit">
+  
+  <!-- Changed 'Name' to 'for' to correctly associate label with input using id -->
+  <label for="username">Enter Username:</label>
+  
+  <!-- Added missing closing quote on name attribute -->
+  <input type="text" id="username" name="username">
+  
+  <!-- 'typ' corrected to 'type' to properly define input type as password -->
+  <label for="passcode">Password:</label>
+  <input type="password" id="passcode" name="password">
+  
+  <!-- Fixed: Removed invalid 'Submit' attribute, fixed misspelled closing tag 'buttn' to 'button',
+       and added type="submit" to define the button's behavior -->
+  <button type="submit">Submit Form</button>
+
+</form>
+</body>
+</html>
