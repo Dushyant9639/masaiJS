@@ -1,0 +1,45 @@
+/* Apply border-box to all elements for consistent sizing */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ensure body has some padding */
+body {
+  font-family: sans-serif;
+  padding: 20px;
+}
+
+/* Responsive flex container */
+.container {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+/* Box styling */
+.box {
+  flex: 1 1 100px;
+  min-width: 100px;
+  max-width: 200px;
+  height: 100px;
+  background: lightblue;
+  border: 1px solid black;
+  padding: 10px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Properly positioned paragraph */
+.text {
+  position: relative;
+  margin-top: 30px;
+  text-align: center;
+  font-weight: bold;
+}
