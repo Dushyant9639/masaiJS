@@ -1,0 +1,75 @@
+/* Global Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+/* Navigation bar layout */
+.navbar {
+  display: flex;
+  justify-content: space-around;
+  background-color: #f4f4f4;
+  padding: 15px;
+  border: 1px solid #ccc;
+}
+
+/* Common link styles */
+.nav-section a {
+  text-decoration: none;
+  padding: 8px 12px;
+  display: inline-block;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Section-specific descendant link styles */
+.section1 a {
+  color: #0077cc;
+}
+
+.section2 a {
+  color: #cc5500;
+}
+
+.section3 a {
+  color: #228B22;
+}
+
+/* Child combinator: only style direct children (not nested links) */
+.section1 > a {
+  font-weight: bold;
+}
+
+.section2 > a {
+  text-transform: uppercase;
+}
+
+.section3 > a {
+  font-style: italic;
+}
+
+/* Hover effect */
+.nav-section a:hover {
+  background-color: #ddd;
+  color: #000;
+}
+
+/* Active effect */
+.nav-section a:active {
+  background-color: #aaa;
+  color: white;
+}
+
+/* Highest specificity: HTTPS links */
+.nav-section a[href^="https"] {
+  color: crimson !important;
+  font-weight: bold;
+  border-bottom: 2px solid crimson;
+}
