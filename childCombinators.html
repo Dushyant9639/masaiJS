@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Combinator Styling Example</title>
+  <style>
+    /* Descendant combinator: all <p> inside <div> */
+    div p {
+      color: red;
+    }
+
+    /* Child combinator: only <p> directly under <div> */
+    div > p {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div>
+    <p>This is a direct child paragraph of div.</p>
+
+    <section>
+      <p>This is a nested paragraph inside a section.</p>
+    </section>
+  </div>
+
+</body>
+</html>
