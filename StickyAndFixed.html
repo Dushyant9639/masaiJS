@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sticky Header & Fixed Footer</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      height: 200vh;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      background-color: orangered;
+      color: white;
+      padding: 15px;
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    main {
+      padding: 20px;
+      margin-bottom: auto; 
+    }
+
+    footer {
+      position: fixed; 
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: grey;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 18px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <header>
+    This is a Sticky Header
+  </header>
+
+  <main>
+    <h2>Scroll down to see the sticky header and fixed footer</h2>
+    <p>Paragraph 1: Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+    <p>Paragraph 2: Suspendisse varius enim in eros elementum tristique.</p>
+    <p>Paragraph 3: Duis cursus, mi quis viverra ornare, eros dolor interdum nulla.</p>
+    <p>Paragraph 4: Aliquam erat volutpat. Nulla facilisi.</p>
+    <p>Paragraph 5: Pellentesque habitant morbi tristique senectus et netus.</p>
+    <p>Paragraph 6: In hac habitasse platea dictumst.</p>
+    <p>Paragraph 7: Curabitur ac leo nunc. Vestibulum et mauris vel ante.</p>
+    <p>Paragraph 8: Quisque at elit nec sem blandit condimentum.</p>
+    <p>Paragraph 9: Cras mattis consectetur purus sit amet fermentum.</p>
+    <p>Paragraph 10: Morbi leo risus, porta ac consectetur ac, vestibulum at eros.</p>
+  </main>
+
+  <footer>
+    Fixed Footer - Always at Bottom
+  </footer>
+
+</body>
+</html>
