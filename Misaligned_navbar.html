@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Debug Navbar</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    
+
+.navbar {
+  display: flex;
+  align-items: center;        /* Vertically center items */
+  justify-content: space-between; /* Push logo left, links right */
+  background-color: #333;
+  padding: 10px 20px;
+}
+
+.logo {
+  color: white;
+  font-size: 24px;
+}
+
+.links {
+  display: flex;
+  flex-direction: row; /* Ensures links are horizontal */
+  gap: 20px;            /* Even spacing between links */
+}
+
+.links a {
+  text-decoration: none;
+  color: white;
+  padding: 5px 10px;
+}
+
+  </style>
+</head>
+<body>
+  <div class="navbar">
+    <div class="logo">Logo</div>
+    <div class="links">
+      <a href="#">Home</a>
+      <a href="#">About</a>
+      <a href="#">Services</a>
+      <a href="#">Contact</a>
+    </div>
+  </div>
+</body>
+</html>
