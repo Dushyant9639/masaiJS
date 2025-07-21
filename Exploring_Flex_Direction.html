@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .container{
+            display: flex;
+            background-color: yellowgreen;
+            height: 100vh;
+            flex-direction: column;  
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            /* flex-direction controls the main axis direction.
+         By default, it's 'row' (horizontal), but here we set it to 'column',
+         so items will be stacked vertically instead of side-by-side. */
+        }
+        .items{
+            border: 2px solid red;
+            padding: 10px;
+            width: 60px;
+            height: 40px;
+            margin: 10px;
+            background-color: yellow;
+
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="items">Item 1</div>
+        <div class="items">Items2</div>
+        <div class="items">Items3</div>
+        <div class="items">Items4</div>
+    </div>
+</body>
+</html>
