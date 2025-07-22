@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Masai Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+  font-family: Arial, sans-serif;
+  background: #fff;
+  text-align: center;
+  padding-top: 50px;
+}
+
+h1 {
+  color: #2c5c5e;
+  font-size: 36px;
+  margin-bottom: 30px;
+}
+
+.calculator {
+  display: inline-block;
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.display {
+  width: 100%;
+  height: 50px;
+  font-size: 24px;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  text-align: right;
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.buttons {
+  display: grid;
+  grid-template-columns: repeat(4, 60px);
+  grid-gap: 15px;
+  justify-content: center;
+}
+
+button {
+  height: 60px;
+  width: 60px;
+  font-size: 20px;
+  border-radius: 10px;
+  border: none;
+  background: #fff;
+  color: black;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s;
+}
+
+button:hover {
+  background: #e2e2e2;
+}
+
+.operator {
+  background: black;
+  color: white;
+}
+
+.operator:hover {
+  background: #333;
+}
+
+.equal {
+  background: black;
+  color: white;
+}
+
+.equal:hover {
+  background: #333;
+}
+
+.clear {
+  background: #e74c3c;
+  color: white;
+}
+
+.clear:hover {
+  background: #c0392b;
+}
+
+  </style>
+</head>
+<body>
+  <h1>Masai Calculator</h1>
+
+  <div class="calculator">
+    <input type="text" class="display" disabled>
+
+    <div class="buttons">
+      <button>1</button>
+      <button>2</button>
+      <button>3</button>
+      <button class="operator">+</button>
+
+      <button>4</button>
+      <button>5</button>
+      <button>6</button>
+      <button class="operator">-</button>
+
+      <button>7</button>
+      <button>8</button>
+      <button>9</button>
+      <button class="operator">x</button>
+
+      <button class="clear">C</button>
+      <button>0</button>
+      <button class="equal">=</button>
+      <button class="operator">/</button>
+    </div>
+  </div>
+</body>
+</html>
