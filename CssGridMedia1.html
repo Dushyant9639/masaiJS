@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 20px;
+}
+
+.box {
+  flex: 1 1 100%; /* Default: single column */
+  background-color: #f2f2f2;
+  padding: 20px;
+  text-align: center;
+  border: 1px solid #ccc;
+}
+
+/* Two columns for screens larger than 768px */
+@media (min-width: 769px) {
+  .box {
+    flex: 1 1 48%; /* 48% + 2% gap = roughly two columns */
+  }
+}
+
+/* Three columns for screens larger than 1024px */
+@media (min-width: 1025px) {
+  .box {
+    flex: 1 1 30%; /* 30% + margins = roughly three columns */
+  }
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+  <div class="box">Column 1</div>
+  <div class="box">Column 2</div>
+  <div class="box">Column 3</div>
+  <div class="box">Column 4</div>
+  <div class="box">Column 5</div>
+  <div class="box">Column 6</div>
+</div>
+
+</body>
+</html>
