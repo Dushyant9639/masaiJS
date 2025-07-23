@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- CRITICAL: Viewport meta tag ensures proper scaling on mobile devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Readability Fix</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* MOBILE-FIRST APPROACH: Base styles for mobile devices */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px; /* Mobile font size */
+            line-height: 1.5; /* Mobile line height */
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 15px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        h1 {
+            font-size: 1.8rem; /* Relative to base font size */
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            color: #34495e;
+            margin: 25px 0 15px 0;
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            color: #555;
+            margin: 20px 0 10px 0;
+        }
+
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+
+        .demo-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .readability-tips {
+            background: linear-gradient(145deg, #e8f5e8, #f0fff0);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+
+        .readability-tips ul {
+            padding-left: 20px;
+        }
+
+        .readability-tips li {
+            margin-bottom: 8px;
+        }
+
+        .device-indicator {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 1000;
+        }
+
+        .text-sample {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            margin: 15px 0;
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        /* Navigation for mobile */
+        .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .nav-item {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-decoration: none;
+            border-radius: 6px;
+            text-align: center;
+            transition: background 0.3s ease;
+        }
+
+        .nav-item:hover {
+            background: #5a67d8;
+        }
+
+        /* MEDIA QUERY: For screens 600px and larger */
+        @media (min-width: 600px) {
+            body {
+                font-size: 16px; /* Larger font size for bigger screens */
+                padding: 30px;
+            }
+
+            .container {
+                max-width: 800px;
+                padding: 40px;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            h2 {
+                font-size: 1.8rem;
+            }
+
+            h3 {
+                font-size: 1.4rem;
+            }
+
+            .demo-section {
+                padding: 30px;
+            }
+
+            .readability-tips {
+                padding: 30px;
+            }
+
+            .text-sample {
+                padding: 25px;
+            }
+
+            /* Horizontal navigation for larger screens */
+            .nav {
+                flex-direction: row;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            .nav-item {
+                flex: 0 0 auto;
+                min-width: 120px;
+            }
+
+            .device-indicator {
+                top: 30px;
+                right: 30px;
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* MEDIA QUERY: For large screens (desktop) */
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 1000px;
+                padding: 50px;
+            }
+
+            h1 {
+                font-size: 3rem;
+            }
+
+            body {
+                padding: 40px;
+            }
+        }
+
+        /* Ensure images and media are responsive */
+        img, video, iframe {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* Prevent horizontal scrolling */
+        body {
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div class="device-indicator" id="deviceIndicator">
+        Mobile View
+    </div>
+
+    <div class="container">
+        <header class="header">
+            <h1>📱 Mobile Readability Fix</h1>
+            <p>This webpage demonstrates proper mobile-first responsive typography and viewport configuration.</p>
+        </header>
+
+        <nav class="nav">
+            <a href="#typography" class="nav-item">Typography</a>
+            <a href="#readability" class="nav-item">Readability</a>
+            <a href="#responsive" class="nav-item">Responsive</a>
+            <a href="#viewport" class="nav-item">Viewport</a>
+        </nav>
+
+        <main>
+            <section id="typography" class="demo-section">
+                <h2>🔤 Typography Scaling</h2>
+                <p>This webpage uses a mobile-first approach where:</p>
+                <div class="text-sample">
+                    <p><strong>Mobile (< 600px):</strong> <span class="highlight">14px font size, 1.5 line height</span></p>
+                    <p><strong>Tablet/Desktop (≥ 600px):</strong> <span class="highlight">16px font size</span></p>
+                </div>
+                <p>The text you're reading right now automatically adjusts based on your screen size. Try resizing your browser window to see the difference!</p>
+            </section>
+
+            <section id="readability" class="readability-tips">
+                <h2>📖 Key Readability Improvements</h2>
+                <ul>
+                    <li><strong>Proper Viewport Meta Tag:</strong> Ensures correct scaling on mobile devices</li>
+                    <li><strong>Mobile-First CSS:</strong> Base styles optimized for small screens first</li>
+                    <li><strong>Responsive Typography:</strong> Font sizes that scale appropriately</li>
+                    <li><strong>Optimal Line Height:</strong> 1.5 line height for better readability</li>
+                    <li><strong>Readable Font Family:</strong> System fonts for better performance</li>
+                    <li><strong>Sufficient Contrast:</strong> Dark text on light backgrounds</li>
+                    <li><strong>Appropriate Spacing:</strong> Margins and padding that work on touch devices</li>
+                </ul>
+            </section>
+
+            <section id="responsive">
+                <h2>📐 Responsive Design Features</h2>
+                <p>This webpage implements several responsive design principles:</p>
+                
+                <h3>Mobile-First Approach</h3>
+                <p>All base styles are written for mobile devices first, then enhanced for larger screens using min-width media queries. This ensures optimal performance on mobile devices and progressive enhancement for desktop users.</p>
+
+                <h3>Flexible Typography</h3>
+                <div class="text-sample">
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                    <p>Notice how this text maintains excellent readability across all screen sizes due to our responsive typography system.</p>
+                </div>
+
+                <h3>Adaptive Navigation</h3>
+                <p>The navigation menu changes from vertical stacking on mobile to horizontal layout on larger screens, providing the best user experience for each device type.</p>
+            </section>
+
+            <section id="viewport" class="demo-section">
+                <h2>🔍 Viewport Configuration</h2>
+                <p>The critical viewport meta tag in the HTML head ensures:</p>
+                <div class="text-sample">
+                    <code>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</code>
+                </div>
+                <ul>
+                    <li><strong>width=device-width:</strong> Sets viewport width to device width</li>
+                    <li><strong>initial-scale=1.0:</strong> Sets initial zoom level to 100%</li>
+                    <li><strong>No zooming restrictions:</strong> Users can still zoom if needed</li>
+                </ul>
+            </section>
+
+            <section>
+                <h2>📊 Testing Your Implementation</h2>
+                <p>To test mobile readability improvements:</p>
+                <ol style="padding-left: 20px;">
+                    <li style="margin-bottom: 8px;">Open browser developer tools (F12)</li>
+                    <li style="margin-bottom: 8px;">Toggle device toolbar (mobile view)</li>
+                    <li style="margin-bottom: 8px;">Test different device sizes</li>
+                    <li style="margin-bottom: 8px;">Verify text is readable without horizontal scrolling</li>
+                    <li style="margin-bottom: 8px;">Check that tap targets are appropriately sized</li>
+                </ol>
+            </section>
+        </main>
+
+        <footer style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #eee; color: #666;">
+            <p>Resize your browser or test on different devices to see the responsive behavior!</p>
+        </footer>
+    </div>
+
+    <script>
+        function updateDeviceIndicator() {
+            const indicator = document.getElementById('deviceIndicator');
+            const width = window.innerWidth;
+            
+            if (width < 600) {
+                indicator.textContent = `📱 Mobile (${width}px) - 14px font`;
+                indicator.style.background = 'rgba(231, 76, 60, 0.9)';
+            } else if (width < 1024) {
+                indicator.textContent = `📟 Tablet (${width}px) - 16px font`;
+                indicator.style.background = 'rgba(230, 126, 34, 0.9)';
+            } else {
+                indicator.textContent = `💻 Desktop (${width}px) - 16px font`;
+                indicator.style.background = 'rgba(46, 204, 113, 0.9)';
+            }
+        }
+
+        // Update indicator on load and resize
+        window.addEventListener('load', updateDeviceIndicator);
+        window.addEventListener('resize', updateDeviceIndicator);
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
