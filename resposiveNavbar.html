@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Responsive Navbar</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Basic Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #333;
+  color: white;
+  padding: 1rem;
+  position: relative;
+}
+
+.logo {
+  font-size: 1.5rem;
+}
+
+.nav-links {
+  list-style: none;
+  display: none;
+  flex-direction: column;
+  width: 100%;
+  background-color: #444;
+  position: absolute;
+  top: 100%;
+  left: 0;
+}
+
+.nav-links.active {
+  display: flex;
+}
+
+.nav-links li {
+  text-align: center;
+  padding: 1rem;
+  border-top: 1px solid #555;
+}
+
+.nav-links li a {
+  color: white;
+  text-decoration: none;
+}
+
+/* Hamburger menu icon (visible only on small screens) */
+.hamburger {
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: block;
+}
+
+/* Medium Screens (768px to 1023px) */
+@media (min-width: 768px) {
+  .nav-links {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    background: none;
+    width: auto;
+  }
+
+  .nav-links li {
+    border: none;
+  }
+
+  .hamburger {
+    display: none;
+  }
+}
+
+/* Large Screens (1024px and up) */
+@media (min-width: 1024px) {
+  .nav-links {
+    flex-direction: row;
+    gap: 1.5rem;
+  }
+
+  .nav-links li {
+    padding: 0;
+  }
+
+  .nav-links li a {
+    padding: 0.5rem 0;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo">MySite</div>
+    <div class="hamburger" onclick="toggleMenu()">☰</div>
+    <ul class="nav-links">
+      <li><a href="#">Home</a></li>
+      <li><a href="#">About</a></li>
+      <li><a href="#">Services</a></li>
+      <li><a href="#">Contact</a></li>
+    </ul>
+  </nav>
+
+  <script>
+    function toggleMenu() {
+      document.querySelector('.nav-links').classList.toggle('active');
+    }
+  </script>
+</body>
+</html>
