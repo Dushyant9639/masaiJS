@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Interactive Div Modifier</title>
+  <style>
+    #output-div {
+      width: 300px;
+      padding: 20px;
+      margin-top: 20px;
+      border: 1px solid #ccc;
+      background-color: lightgray;
+      font-size: 16px;
+    }
+
+    input, button {
+      margin: 5px 0;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Modify the Box Below</h2>
+
+  <label>Enter a color name:</label>
+  <input type="text" id="color-input" placeholder="e.g., blue or #ff0000">
+
+  <label>Enter text content:</label>
+  <input type="text" id="text-input" placeholder="Type your message here">
+
+  <button id="change-bg-btn">Change Background</button>
+  <button id="update-text-btn">Update Text</button>
+
+  <div id="output-div">This is the initial content of the box.</div>
+
+  <script>
+    const colorInput = document.getElementById("color-input");
+    const textInput = document.getElementById("text-input");
+    const changeBgBtn = document.getElementById("change-bg-btn");
+    const updateTextBtn = document.getElementById("update-text-btn");
+    const outputDiv = document.getElementById("output-div");
+
+    // Function to validate color using the browser's style engine
+    function isValidColor(color) {
+      const temp = document.createElement("div");
+      temp.style.color = color;
+      return temp.style.color !== "";
+    }
+
+    // Event: Change background color
+    changeBgBtn.addEventListener("click", () => {
+      const color = colorInput.value.trim();
+      if (isValidColor(color)) {
+        outputDiv.style.backgroundColor = color;
+      } else {
+        alert("Invalid color name!");
+      }
+    });
+
+    // Event: Update text content
+    updateTextBtn.addEventListener("click", () => {
+      const text = textInput.value.trim();
+      if (text === "") {
+        alert("Please enter some text!");
+      } else {
+        outputDiv.textContent = text;
+      }
+    });
+  </script>
+
+</body>
+</html>
