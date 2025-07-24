@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dynamic List</title>
+  <style>
+    .odd {
+      font-weight: bold;
+      color: blue;
+    }
+
+    .even {
+      font-style: italic;
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>My List</h2>
+  <ul id="my-list">
+    <li class="odd">Item 1</li>
+    <li class="even">Item 2</li>
+    <li class="odd">Item 3</li>
+  </ul>
+
+  <button id="add-btn">Add Item</button>
+
+  <script>
+    const ul = document.querySelector("#my-list");
+    const button = document.querySelector("#add-btn");
+
+    button.addEventListener("click", () => {
+      const newItem = document.createElement("li");
+      const currentCount = ul.children.length + 1;
+      newItem.textContent = `New Item ${currentCount}`;
+
+      // Apply styles based on odd/even position
+      if (currentCount % 2 === 1) {
+        newItem.classList.add("odd");
+      } else {
+        newItem.classList.add("even");
+      }
+
+      ul.appendChild(newItem);
+    });
+  </script>
+
+</body>
+</html>
