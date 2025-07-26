@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Grid</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* Ensure exactly 3 columns on larger screens */
+        @media (min-width: 1000px) {
+            .products-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Conditional styling based on stock */
+        .product-card.in-stock {
+            border: 2px solid #28a745;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        }
+
+        .product-card.in-stock::before {
+            background: linear-gradient(90deg, #28a745, #20c997);
+        }
+
+        .product-card.out-of-stock {
+            border: 2px solid #dc3545;
+            background: linear-gradient(135deg, #f8d7da 0%, #f1b2b6 100%);
+            opacity: 0.8;
+        }
+
+        .product-card.out-of-stock::before {
+            background: linear-gradient(90deg, #dc3545, #c82333);
+        }
+
+        .product-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .product-price {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .product-price::before {
+            content: '$';
+            font-size: 1.2rem;
+            vertical-align: top;
+        }
+
+        .stock-status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            width: 100%;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stock-status.in-stock {
+            background: #28a745;
+            color: white;
+        }
+
+        .stock-status.out-of-stock {
+            background: #dc3545;
+            color: white;
+        }
+
+        .product-id {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: rgba(0, 0, 0, 0.1);
+            color: #666;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .products-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 30px;
+            }
+            
+            .product-card {
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 20px 10px;
+            }
+            
+            .product-card {
+                padding: 15px;
+            }
+            
+            .product-name {
+                font-size: 1.2rem;
+            }
+            
+            .product-price {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Loading animation */
+        .product-card {
+            animation: fadeInUp 0.6s ease forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Stagger animation delays */
+        .product-card:nth-child(1) { animation-delay: 0.1s; }
+        .product-card:nth-child(2) { animation-delay: 0.2s; }
+        .product-card:nth-child(3) { animation-delay: 0.3s; }
+        .product-card:nth-child(4) { animation-delay: 0.4s; }
+        .product-card:nth-child(5) { animation-delay: 0.5s; }
+        .product-card:nth-child(6) { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛍️ Product Catalog</h1>
+        <div class="products-grid" id="productsGrid">
+            <!-- Products will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // Sample product data
+        const products = [
+            { id: 1, name: "Premium Wireless Headphones", price: 299, inStock: true },
+            { id: 2, name: "Smart Fitness Tracker", price: 159, inStock: false },
+            { id: 3, name: "Bluetooth Speaker", price: 79, inStock: true },
+            { id: 4, name: "Gaming Mechanical Keyboard", price: 129, inStock: false },
+            { id: 5, name: "4K Webcam", price: 199, inStock: true },
+            { id: 6, name: "Portable Phone Charger", price: 45, inStock: true }
+        ];
+
+        /**
+         * Creates HTML for a single product card
+         * @param {Object} product - Product object with id, name, price, inStock
+         * @returns {string} HTML string for the product card
+         */
+        function createProductCard(product) {
+            const stockClass = product.inStock ? 'in-stock' : 'out-of-stock';
+            const stockLabel = product.inStock ? 'In Stock' : 'Out of Stock';
+            
+            return `
+                <div class="product-card ${stockClass}">
+                    <div class="product-id">ID: ${product.id}</div>
+                    <div class="product-name">${escapeHtml(product.name)}</div>
+                    <div class="product-price">${product.price}</div>
+                    <div class="stock-status ${stockClass}">${stockLabel}</div>
+                </div>
+            `;
+        }
+
+        /**
+         * Escapes HTML characters to prevent XSS
+         * @param {string} text - Text to escape
+         * @returns {string} Escaped HTML string
+         */
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        /**
+         * Renders all products to the grid
+         * @param {Array} productList - Array of product objects
+         */
+        function renderProducts(productList) {
+            const grid = document.getElementById('productsGrid');
+            
+            // Use map() to transform each product into HTML, then join into single string
+            const productsHTML = productList
+                .map(product => createProductCard(product))
+                .join('');
+            
+            grid.innerHTML = productsHTML;
+        }
+
+        /**
+         * Filters products based on stock availability
+         * @param {boolean} inStockOnly - If true, show only in-stock products
+         * @returns {Array} Filtered product array
+         */
+        function filterProductsByStock(inStockOnly = false) {
+            return products.filter(product => 
+                inStockOnly ? product.inStock : true
+            );
+        }
+
+        /**
+         * Sorts products by price
+         * @param {Array} productList - Products to sort
+         * @param {boolean} ascending - Sort order (true for low to high)
+         * @returns {Array} Sorted product array
+         */
+        function sortProductsByPrice(productList, ascending = true) {
+            return [...productList].sort((a, b) => 
+                ascending ? a.price - b.price : b.price - a.price
+            );
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            renderProducts(products);
+            
+            // Add some interactive functionality for demonstration
+            console.log('📊 Product Statistics:');
+            console.log(`Total products: ${products.length}`);
+            console.log(`In stock: ${products.filter(p => p.inStock).length}`);
+            console.log(`Out of stock: ${products.filter(p => !p.inStock).length}`);
+            
+            // Example of using filter and sort functions
+            const inStockProducts = filterProductsByStock(true);
+            const sortedProducts = sortProductsByPrice(products, true);
+            
+            console.log('🟢 In-stock products:', inStockProducts.map(p => p.name));
+            console.log('💰 Products by price (low to high):', sortedProducts.map(p => `${p.name} ($${p.price})`));
+        });
+
+        // Optional: Add click handlers for interactive features
+        document.getElementById('productsGrid').addEventListener('click', function(event) {
+            const productCard = event.target.closest('.product-card');
+            if (productCard) {
+                const productId = productCard.querySelector('.product-id').textContent.replace('ID: ', '');
+                const product = products.find(p => p.id == productId);
+                
+                // Simple interaction feedback
+                productCard.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    productCard.style.transform = '';
+                }, 150);
+                
+                console.log(`🔍 Clicked on: ${product.name}`);
+            }
+        });
+    </script>
+</body>
+</html>
