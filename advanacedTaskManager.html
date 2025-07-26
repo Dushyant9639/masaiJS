@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task Manager</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+    }
+    input[type="text"] {
+      width: 70%;
+      padding: 10px;
+    }
+    button {
+      padding: 10px;
+      margin: 5px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+    }
+    .completed {
+      text-decoration: line-through;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+  <h2>Task Manager</h2>
+  <input type="text" id="taskInput" placeholder="Add a task" />
+  <button id="addTask">Add Task</button>
+
+  <div>
+    <button data-filter="all">All</button>
+    <button data-filter="completed">Completed</button>
+    <button data-filter="incomplete">Incomplete</button>
+    <button id="sortTasks">Sort A-Z</button>
+  </div>
+
+  <p>Total: <span id="totalCount">0</span> | Completed: <span id="completedCount">0</span> | Incomplete: <span id="incompleteCount">0</span></p>
+
+  <ul id="taskList"></ul>
+
+  <script>
+    // DOM element references
+    const taskInput = document.getElementById('taskInput');
+    const addTaskBtn = document.getElementById('addTask');
+    const taskList = document.getElementById('taskList');
+    const totalCount = document.getElementById('totalCount');
+    const completedCount = document.getElementById('completedCount');
+    const incompleteCount = document.getElementById('incompleteCount');
+    const filterBtns = document.querySelectorAll('[data-filter]');
+    const sortBtn = document.getElementById('sortTasks');
+
+    let tasks = []; // Array to hold task objects
+    let currentFilter = 'all'; // Current filter mode
+
+    // Function to render tasks based on currentFilter
+    function renderTasks() {
+      // HOF: filter() is used to get only the tasks that match the selected filter
+      const filteredTasks = tasks.filter(task => {
+        if (currentFilter === 'completed') return task.completed;
+        if (currentFilter === 'incomplete') return !task.completed;
+        return true; // All tasks
+      });
+
+      taskList.innerHTML = '';
+
+      // HOF: forEach() is used to iterate over filtered tasks and render each
+      filteredTasks.forEach((task, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <span class="${task.completed ? 'completed' : ''}" data-index="${index}" data-action="toggle">${task.name}</span>
+          <div>
+            <input type="checkbox" data-index="${index}" data-action="toggle" ${task.completed ? 'checked' : ''} />
+            <button data-index="${index}" data-action="delete">Delete</button>
+          </div>
+        `;
+        taskList.appendChild(li);
+      });
+      updateCounts();
+    }
+
+    // Update task counters dynamically
+    function updateCounts() {
+      totalCount.textContent = tasks.length;
+
+      // HOF: filter() used to get completed tasks count
+      const completed = tasks.filter(t => t.completed).length;
+
+      completedCount.textContent = completed;
+      incompleteCount.textContent = tasks.length - completed;
+    }
+
+    // Event listener for Add Task button
+    addTaskBtn.addEventListener('click', () => {
+      const name = taskInput.value.trim();
+      if (name) {
+        tasks.push({ name, completed: false }); // Add new task
+        taskInput.value = '';
+        renderTasks();
+      }
+    });
+
+    // Event Delegation for toggle and delete actions
+    taskList.addEventListener('click', (e) => {
+      const index = e.target.dataset.index;
+      const action = e.target.dataset.action;
+
+      if (action === 'toggle') {
+        tasks[index].completed = !tasks[index].completed; // Toggle completion
+      } else if (action === 'delete') {
+        tasks.splice(index, 1); // Remove task
+      }
+
+      renderTasks();
+    });
+
+    // Event listener for filter buttons
+    filterBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        currentFilter = btn.dataset.filter;
+        renderTasks();
+      });
+    });
+
+    // Event listener for sort button
+    sortBtn.addEventListener('click', () => {
+      // HOF: sort() used to sort tasks alphabetically
+      tasks.sort((a, b) => a.name.localeCompare(b.name));
+      renderTasks();
+    });
+
+    // Initial rendering of tasks
+    renderTasks();
+  </script>
+</body>
+</html>
