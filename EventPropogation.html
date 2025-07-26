@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Event Propagation Demo</title>
+  <style>
+    .box {
+      padding: 40px;
+      margin: 20px;
+      border: 2px solid black;
+    }
+    #div1 { background-color: #ffe6e6; }
+    #div2 { background-color: #e6ffe6; }
+    #div3 { background-color: #e6e6ff; }
+    button {
+      margin-top: 10px;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="div1" class="box">
+    Div 1
+    <button id="btn1">Button 1</button>
+
+    <div id="div2" class="box">
+      Div 2
+      <button id="btn2">Button 2</button>
+
+      <div id="div3" class="box">
+        Div 3
+        <button id="btn3">Button 3 (Stops Propagation)</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ✅ Event propagation phases:
+    // 1. Capturing Phase: Top to Target (useCapture = true)
+    // 2. Bubbling Phase: Target to Top (default)
+
+    // Helper function to add event listener with phase name
+    function addListeners(element, name) {
+      // Capturing phase
+      element.addEventListener('click', function(e) {
+        alert(`${name} - Capturing`);
+      }, true); // true means capturing
+
+      // Bubbling phase
+      element.addEventListener('click', function(e) {
+        alert(`${name} - Bubbling`);
+      }); // false by default = bubbling
+    }
+
+    // Add listeners to divs and buttons
+    addListeners(document.getElementById('div1'), 'DIV 1');
+    addListeners(document.getElementById('div2'), 'DIV 2');
+    addListeners(document.getElementById('div3'), 'DIV 3');
+
+    addListeners(document.getElementById('btn1'), 'BUTTON 1');
+    addListeners(document.getElementById('btn2'), 'BUTTON 2');
+
+    // Special: Button 3 stops propagation
+    const btn3 = document.getElementById('btn3');
+    btn3.addEventListener('click', function(e) {
+      alert('BUTTON 3 - Capturing');
+    }, true);
+
+    btn3.addEventListener('click', function(e) {
+      alert('BUTTON 3 - Bubbling');
+      e.stopPropagation(); // ✅ Stops further propagation (no parent alerts)
+    });
+  </script>
+
+</body>
+</html>
+<!-- Event Propagation Phases:
+1. **Capturing Phase** (Event travels from window → target element):
+   - Listeners with `useCapture = true` will trigger in this phase.
+
+2. **Target Phase** (Event reaches the actual target element)
+
+3. **Bubbling Phase** (Event bubbles up from target → window):
+   - Listeners with `useCapture = false` (or omitted) are triggered here. -->
