@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Persistent Notes App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background-color: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      padding: 10px;
+      font-size: 16px;
+      resize: none;
+    }
+    .buttons {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #message {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+    #displayNotes {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #e6f7ff;
+      border: 1px solid #91d5ff;
+      min-height: 100px;
+    }
+    .note {
+      background-color: #fff;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📝 Notes App</h1>
+
+  <!-- Textarea for note input -->
+  <textarea id="notesInput" placeholder="Enter your note here..."></textarea>
+
+  <!-- Buttons for actions -->
+  <div class="buttons">
+    <button onclick="saveNote()">Save Note</button>
+    <button onclick="loadNotes()">Load Notes</button>
+    <button onclick="clearNotes()">Clear Notes</button>
+  </div>
+
+  <!-- Message -->
+  <p id="message"></p>
+
+  <!-- Notes display section -->
+  <h2>📌 Your Saved Notes</h2>
+  <div id="displayNotes"></div>
+
+  <script>
+    const STORAGE_KEY = "masaiNotesList";
+    const notesInput = document.getElementById("notesInput");
+    const message = document.getElementById("message");
+    const displayNotes = document.getElementById("displayNotes");
+
+    // Load notes on page load
+    window.addEventListener("DOMContentLoaded", loadNotes);
+
+    // Save a single note (append to list)
+    function saveNote() {
+      const noteText = notesInput.value.trim();
+      if (noteText === "") {
+        showMessage("Cannot save an empty note.", "error");
+        return;
+      }
+
+      // Get existing notes or initialize empty array
+      let notes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      notes.push(noteText); // Add new note to array
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+
+      notesInput.value = ""; // Clear input
+      showMessage("Note saved successfully!", "success");
+      renderNotes(notes);
+    }
+
+    // Load all notes from localStorage
+    function loadNotes() {
+      const notes = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      if (notes.length === 0) {
+        displayNotes.innerHTML = "<i>No saved notes found.</i>";
+        showMessage("Nothing to load.", "error");
+      } else {
+        renderNotes(notes);
+        showMessage("Notes loaded.", "success");
+      }
+    }
+
+    // Clear all notes
+    function clearNotes() {
+      localStorage.removeItem(STORAGE_KEY);
+      displayNotes.innerHTML = "<i>All notes cleared.</i>";
+      showMessage("Notes cleared successfully.", "success");
+    }
+
+    // Display all notes on screen
+    function renderNotes(notes) {
+      displayNotes.innerHTML = "";
+      notes.forEach((note, index) => {
+        const noteDiv = document.createElement("div");
+        noteDiv.className = "note";
+        noteDiv.textContent = `${index + 1}. ${note}`;
+        displayNotes.appendChild(noteDiv);
+      });
+    }
+
+    // Utility: show feedback message
+    function showMessage(msg, type) {
+      message.textContent = msg;
+      message.className = type;
+    }
+  </script>
+
+</body>
+</html>
