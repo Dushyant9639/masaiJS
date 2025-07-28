@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Multi-User Shopping Cart</title>
+  <style>
+    body { font-family: Arial; background: #f4f4f4; padding: 20px; }
+    h2 { margin-top: 0; }
+    .hidden { display: none; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 8px; border: 1px solid #ccc; text-align: left; }
+    input[type="number"] { width: 60px; }
+    .total { font-weight: bold; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <!-- Login -->
+  <div id="loginSection">
+    <h2>Login</h2>
+    <input type="text" id="usernameInput" placeholder="Enter unique username" />
+    <button onclick="login()">Login</button>
+  </div>
+
+  <!-- Cart Section -->
+  <div id="cartSection" class="hidden">
+    <h2>Welcome, <span id="currentUser"></span></h2>
+
+    <!-- Add Item -->
+    <div>
+      <input type="text" id="itemName" placeholder="Item Name" />
+      <input type="number" id="itemPrice" placeholder="Price" min="1" />
+      <input type="number" id="itemQty" placeholder="Qty" min="1" />
+      <button onclick="addItem()">Add Item</button>
+    </div>
+
+    <!-- Cart Table -->
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Price</th>
+          <th>Qty</th>
+          <th>Total</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="cartBody"></tbody>
+    </table>
+
+    <div class="total">Grand Total: $<span id="grandTotal">0</span></div>
+  </div>
+
+  <script>
+    let currentUser = null;
+    const usernameInput = document.getElementById("usernameInput");
+    const cartBody = document.getElementById("cartBody");
+    const grandTotalEl = document.getElementById("grandTotal");
+
+    // Load cart for logged-in user
+    function login() {
+      const username = usernameInput.value.trim();
+      if (!username) return alert("Username required");
+
+      currentUser = username;
+      document.getElementById("currentUser").textContent = username;
+      document.getElementById("loginSection").classList.add("hidden");
+      document.getElementById("cartSection").classList.remove("hidden");
+      renderCart();
+    }
+
+    function getCartData() {
+      const data = JSON.parse(localStorage.getItem("shoppingCart")) || {};
+      return data[currentUser] || [];
+    }
+
+    function saveCartData(cart) {
+      const data = JSON.parse(localStorage.getItem("shoppingCart")) || {};
+      data[currentUser] = cart;
+      localStorage.setItem("shoppingCart", JSON.stringify(data));
+    }
+
+    function addItem() {
+      const name = document.getElementById("itemName").value.trim();
+      const price = parseFloat(document.getElementById("itemPrice").value);
+      const qty = parseInt(document.getElementById("itemQty").value);
+
+      if (!name || isNaN(price) || isNaN(qty) || price <= 0 || qty <= 0) {
+        return alert("Enter valid item name, price, and quantity");
+      }
+
+      const cart = getCartData();
+
+      const existingItem = cart.find(item => item.itemName === name);
+      if (existingItem) {
+        existingItem.quantity += qty;
+      } else {
+        cart.push({ itemName: name, price: price, quantity: qty });
+      }
+
+      saveCartData(cart);
+      renderCart();
+
+      // Clear inputs
+      document.getElementById("itemName").value = '';
+      document.getElementById("itemPrice").value = '';
+      document.getElementById("itemQty").value = '';
+    }
+
+    function updateQuantity(index, newQty) {
+      const cart = getCartData();
+      if (newQty <= 0) return;
+
+      cart[index].quantity = newQty;
+      saveCartData(cart);
+      renderCart();
+    }
+
+    function removeItem(index) {
+      const cart = getCartData();
+      cart.splice(index, 1);
+      saveCartData(cart);
+      renderCart();
+    }
+
+    function renderCart() {
+      const cart = getCartData();
+      cartBody.innerHTML = '';
+      let total = 0;
+
+      cart.forEach((item, index) => {
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
+
+        const row = `
+          <tr>
+            <td>${item.itemName}</td>
+            <td>$${item.price}</td>
+            <td>
+              <input type="number" value="${item.quantity}" min="1" onchange="updateQuantity(${index}, this.value)" />
+            </td>
+            <td>$${itemTotal}</td>
+            <td><button onclick="removeItem(${index})">Remove</button></td>
+          </tr>
+        `;
+        cartBody.innerHTML += row;
+      });
+
+      grandTotalEl.textContent = total.toFixed(2);
+    }
+  </script>
+</body>
+</html>
