@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Themed Webpage with sessionStorage</title>
+  <style>
+    body {
+      margin: 20px;
+      font-family: Arial, sans-serif;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    label {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    select {
+      padding: 5px 10px;
+      font-size: 16px;
+      margin-left: 10px;
+    }
+
+    /* Theme Styles */
+    .light-theme {
+      background-color: #ffffff;
+      color: #000000;
+    }
+
+    .dark-theme {
+      background-color: #1e1e1e;
+      color: #f1f1f1;
+    }
+
+    .blue-theme {
+      background-color: #001f3f;
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎨 Theme Switcher</h1>
+
+  <div style="text-align: center;">
+    <label for="themeSelect">Choose a theme:</label>
+    <select id="themeSelect">
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+      <option value="blue">Blue</option>
+    </select>
+  </div>
+
+  <script>
+    const themeSelect = document.getElementById("themeSelect");
+
+    // Apply the selected theme class to <body>
+    function applyTheme(theme) {
+      document.body.classList.remove("light-theme", "dark-theme", "blue-theme");
+      document.body.classList.add(`${theme}-theme`);
+    }
+
+    // Handle theme selection
+    themeSelect.addEventListener("change", () => {
+      const selectedTheme = themeSelect.value;
+      sessionStorage.setItem("selectedTheme", selectedTheme);
+      applyTheme(selectedTheme);
+    });
+
+    // On page load, apply stored theme if exists
+    window.addEventListener("DOMContentLoaded", () => {
+      const storedTheme = sessionStorage.getItem("selectedTheme") || "light";
+      themeSelect.value = storedTheme;
+      applyTheme(storedTheme);
+    });
+  </script>
+
+</body>
+</html>
