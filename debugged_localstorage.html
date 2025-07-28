@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+  /* Theme styling: changes background and text color */
+  body.light {
+    background-color: #ffffff;
+    color: #000000;
+  }
+
+  body.dark {
+    background-color: #1e1e1e;
+    color: #ffffff;
+  }
+
+  /* Optional form styling */
+  form {
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #f1f1f1;
+  }
+</style>
+</head>
+<body>
+  <form id="preferencesForm">
+  <!-- Theme selection -->
+  <label for="themeSelect">Theme:</label>
+  <select id="themeSelect">
+    <option value="light">Light</option>
+    <option value="dark">Dark</option>
+  </select>
+
+  <!-- Language selection -->
+  <label for="languageSelect">Language:</label>
+  <select id="languageSelect">
+    <option value="en">English</option>
+    <option value="es">Spanish</option>
+  </select>
+
+  <!-- Notifications checkbox -->
+  <label for="notificationsCheckbox">Notifications:</label>
+  <input type="checkbox" id="notificationsCheckbox">
+
+  <button type="submit">Save Preferences</button>
+</form>
+
+<script>
+  // Get DOM elements
+  const form = document.getElementById('preferencesForm');
+  const themeSelect = document.getElementById('themeSelect'); // ✅ Renamed from 'theme' to avoid shadowing variable below
+  const languageSelect = document.getElementById('languageSelect'); // ✅ Renamed to be consistent
+  const notificationsCheckbox = document.getElementById('notificationsCheckbox'); // ✅ Renamed for clarity
+
+  // ✅ Helper function to apply the selected theme to the body
+  function applyTheme(theme) {
+    document.body.classList.remove('light', 'dark'); // Remove previous theme class
+    document.body.classList.add(theme);              // Add the selected theme class
+  }
+
+  // ✅ Save preferences and apply theme on form submit
+  form.addEventListener('submit', (e) => {
+    e.preventDefault(); // Prevent page reload
+
+    const preferences = {
+      theme: themeSelect.value,
+      language: languageSelect.value,
+      notifications: notificationsCheckbox.checked // ✅ Correctly stores checkbox state
+    };
+
+    // ✅ Save preferences to localStorage
+    localStorage.setItem('preferences', JSON.stringify(preferences));
+
+    // ✅ Apply theme immediately after saving
+    applyTheme(preferences.theme);
+
+    alert('Preferences Saved!');
+  });
+
+  // ✅ Load preferences from localStorage on page load
+  window.onload = () => {
+    const storedPrefs = localStorage.getItem('preferences');
+
+    if (storedPrefs) {
+      const { theme, language, notifications } = JSON.parse(storedPrefs);
+
+      // ✅ Populate form inputs with stored values
+      themeSelect.value = theme;
+      languageSelect.value = language;
+      notificationsCheckbox.checked = notifications;
+
+      // ✅ Apply stored theme visually
+      applyTheme(theme);
+    } else {
+      // ✅ Fallback: default to 'light' theme on first visit
+      applyTheme('light');
+    }
+  };
+</script>
+
+</body>
+</html>
