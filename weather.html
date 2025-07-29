@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Weather App</title>
+</head>
+<body>
+  <!-- Form to input city name -->
+  <form id="weatherForm">
+    <input id="city" type="text" placeholder="Enter city name" required />
+    <button type="submit">Get Weather</button>
+  </form>
+
+  <!-- Display area for weather or error messages -->
+  <div id="weather"></div>
+
+  <script>
+    // Get DOM elements
+    const weatherForm = document.getElementById('weatherForm');
+    const cityInput = document.getElementById('city');
+    const weatherDisplay = document.getElementById('weather');
+
+    // Event listener for form submission
+    weatherForm.addEventListener('submit', (e) => {
+      e.preventDefault(); // Prevents form from refreshing the page
+      const city = cityInput.value.trim(); // Remove extra spaces
+
+      // 🔧 Validation: Prevent empty input
+      if (city === '') {
+        weatherDisplay.textContent = 'Please enter a city name.';
+        return;
+      }
+
+      // Call function to fetch weather data
+      fetchWeather(city);
+    });
+
+    // Function to fetch weather data
+    async function fetchWeather(city) {
+      const apiKey = 'YOUR_API_KEY'; // 🔧 Replace with your actual API key
+
+      // 🔧 Encode city to handle special characters and spaces
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric`;
+
+      // Show a loading message
+      weatherDisplay.textContent = 'Fetching weather...';
+
+      try {
+        const response = await fetch(url);
+
+        // 🔧 Handle HTTP errors
+        if (!response.ok) {
+          if (response.status === 404) {
+            // 🔧 User-friendly message for invalid city
+            weatherDisplay.textContent = 'City not found. Please check the name.';
+          } else {
+            // General API error
+            weatherDisplay.textContent = `Error: ${response.status} ${response.statusText}`;
+          }
+          return;
+        }
+
+        const data = await response.json();
+
+        // 🔧 Extract and display relevant weather info
+        const cityName = data.name;
+        const temp = data.main.temp;
+        const description = data.weather[0].description;
+
+        // Display formatted weather info
+        weatherDisplay.textContent = `Weather in ${cityName}: ${temp}°C, ${description}`;
+      } catch (error) {
+        // 🔧 Handle network or fetch errors
+        weatherDisplay.textContent = 'Network error. Please try again later.';
+        console.error('Fetch error:', error);
+      }
+    }
+  </script>
+</body>
+</html>
