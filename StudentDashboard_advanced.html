@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Student Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #000000;
+      --card: #f5f5f5;
+    }
+    body.dark {
+      --bg: #121212;
+      --text: #f0f0f0;
+      --card: #1f1f1f;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 1rem;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    form, .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+    input, select, button {
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: var(--card);
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 6px;
+    }
+    button {
+      cursor: pointer;
+    }
+    .actions button {
+      margin-left: 0.3rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Student Dashboard</h1>
+      <button id="themeToggle">Toggle Theme</button>
+    </header>
+
+    <form id="studentForm">
+      <input type="text" id="name" placeholder="Name" required />
+      <input type="number" id="age" placeholder="Age" required />
+      <select id="grade">
+        <option>A</option><option>B</option><option>C</option>
+      </select>
+      <label><input type="checkbox" id="enrolled" /> Enrolled</label>
+      <button type="submit">Add Student</button>
+    </form>
+
+    <div class="controls">
+      <input type="text" id="search" placeholder="Search by name..." />
+      <select id="filterGrade">
+        <option value="">All Grades</option>
+        <option>A</option><option>B</option><option>C</option>
+      </select>
+      <select id="filterEnrolled">
+        <option value="">All</option>
+        <option value="true">Enrolled</option>
+        <option value="false">Not Enrolled</option>
+      </select>
+      <select id="sortOption">
+        <option value="">Sort</option>
+        <option value="name_asc">Name (A-Z)</option>
+        <option value="age_asc">Age (Asc)</option>
+        <option value="age_desc">Age (Desc)</option>
+      </select>
+    </div>
+
+    <ul id="studentList"></ul>
+  </div>
+
+  <script>
+    const dbURL = "https://your-project.firebaseio.com/students"; // ⛔ Replace with your Firebase URL
+
+    const studentForm = document.getElementById("studentForm");
+    const studentList = document.getElementById("studentList");
+    const searchInput = document.getElementById("search");
+    const gradeFilter = document.getElementById("filterGrade");
+    const enrolledFilter = document.getElementById("filterEnrolled");
+    const sortOption = document.getElementById("sortOption");
+    const themeToggle = document.getElementById("themeToggle");
+
+    let students = [];
+    let editId = null;
+
+    // Apply theme from localStorage
+    if (localStorage.getItem("theme") === "dark") document.body.classList.add("dark");
+
+    // Restore saved filters
+    gradeFilter.value = localStorage.getItem("filterGrade") || "";
+    enrolledFilter.value = localStorage.getItem("filterEnrolled") || "";
+    sortOption.value = localStorage.getItem("sortOption") || "";
+
+    themeToggle.onclick = () => {
+      document.body.classList.toggle("dark");
+      localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+    };
+
+    async function fetchStudents() {
+      const res = await fetch(`${dbURL}.json`);
+      const data = await res.json();
+      students = data ? Object.entries(data).map(([id, obj]) => ({ id, ...obj })) : [];
+      renderStudents();
+    }
+
+    studentForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const student = {
+        name: document.getElementById("name").value,
+        age: +document.getElementById("age").value,
+        grade: document.getElementById("grade").value,
+        enrolled: document.getElementById("enrolled").checked
+      };
+
+      if (editId) {
+        await fetch(`${dbURL}/${editId}.json`, {
+          method: "PUT",
+          body: JSON.stringify(student)
+        });
+        editId = null;
+      } else {
+        await fetch(`${dbURL}.json`, {
+          method: "POST",
+          body: JSON.stringify(student)
+        });
+      }
+      studentForm.reset();
+      fetchStudents();
+    };
+
+    function renderStudents() {
+      let filtered = [...students];
+
+      const search = searchInput.value.toLowerCase();
+      if (search) filtered = filtered.filter(s => s.name.toLowerCase().includes(search));
+
+      if (gradeFilter.value) filtered = filtered.filter(s => s.grade === gradeFilter.value);
+      if (enrolledFilter.value) filtered = filtered.filter(s => String(s.enrolled) === enrolledFilter.value);
+
+      switch (sortOption.value) {
+        case "name_asc":
+          filtered.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+        case "age_asc":
+          filtered.sort((a, b) => a.age - b.age);
+          break;
+        case "age_desc":
+          filtered.sort((a, b) => b.age - a.age);
+          break;
+      }
+
+      // Save filters
+      localStorage.setItem("filterGrade", gradeFilter.value);
+      localStorage.setItem("filterEnrolled", enrolledFilter.value);
+      localStorage.setItem("sortOption", sortOption.value);
+
+      studentList.innerHTML = filtered.map(s => `
+        <li>
+          <div>
+            <strong>${s.name}</strong> | Age: ${s.age} | Grade: ${s.grade} | ${s.enrolled ? "✅ Enrolled" : "❌ Not Enrolled"}
+          </div>
+          <div class="actions">
+            <button onclick="editStudent('${s.id}')">Edit</button>
+            <button onclick="deleteStudent('${s.id}')">Delete</button>
+          </div>
+        </li>
+      `).join("");
+    }
+
+    window.editStudent = (id) => {
+      const s = students.find(std => std.id === id);
+      document.getElementById("name").value = s.name;
+      document.getElementById("age").value = s.age;
+      document.getElementById("grade").value = s.grade;
+      document.getElementById("enrolled").checked = s.enrolled;
+      editId = id;
+    };
+
+    window.deleteStudent = async (id) => {
+      await fetch(`${dbURL}/${id}.json`, { method: "DELETE" });
+      fetchStudents();
+    };
+
+    searchInput.oninput = renderStudents;
+    gradeFilter.onchange = renderStudents;
+    enrolledFilter.onchange = renderStudents;
+    sortOption.onchange = renderStudents;
+
+    fetchStudents();
+  </script>
+</body>
+</html>
