@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Student CRUD App (MockAPI)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      padding: 30px;
+    }
+    .loading {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1 class="mb-4 text-center">Student Manager (MockAPI)</h1>
+
+  <!-- Form -->
+  <form id="studentForm" class="mb-4">
+    <input type="hidden" id="studentId">
+    <div class="row g-2">
+      <div class="col-md-3">
+        <input type="text" id="name" class="form-control" placeholder="Name" required>
+      </div>
+      <div class="col-md-2">
+        <input type="number" id="age" class="form-control" placeholder="Age" required>
+      </div>
+      <div class="col-md-3">
+        <input type="text" id="course" class="form-control" placeholder="Course" required>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Save</button>
+      </div>
+      <div class="col-md-2">
+        <button type="button" class="btn btn-secondary w-100" onclick="resetForm()">Reset</button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Loading -->
+  <div class="loading text-center" id="loading">
+    <div class="spinner-border" role="status"></div>
+    <p>Loading...</p>
+  </div>
+
+  <!-- Error -->
+  <div id="error" class="text-danger text-center mb-3"></div>
+
+  <!-- Student Table -->
+  <table class="table table-bordered table-striped" id="studentTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Age</th>
+        <th>Course</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const API_URL = 'https://6888faccadf0e59551bc1c3c.mockapi.io/api/students';
+
+    const form = document.getElementById('studentForm');
+    const studentIdInput = document.getElementById('studentId');
+    const nameInput = document.getElementById('name');
+    const ageInput = document.getElementById('age');
+    const courseInput = document.getElementById('course');
+    const studentTableBody = document.querySelector('#studentTable tbody');
+    const loading = document.getElementById('loading');
+    const errorBox = document.getElementById('error');
+
+    function showLoading(show) {
+      loading.style.display = show ? 'block' : 'none';
+    }
+
+    function showError(message = '') {
+      errorBox.textContent = message;
+    }
+
+    async function fetchStudents() {
+      showLoading(true);
+      showError();
+      try {
+        const res = await fetch(API_URL);
+        const students = await res.json();
+        renderStudents(students);
+      } catch (err) {
+        showError('Failed to fetch students.');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function renderStudents(students) {
+      studentTableBody.innerHTML = '';
+      students.forEach(student => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${student.name}</td>
+          <td>${student.age}</td>
+          <td>${student.course}</td>
+          <td>
+            <button class="btn btn-sm btn-warning" onclick="editStudent('${student.id}')">Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteStudent('${student.id}')">Delete</button>
+          </td>
+        `;
+        studentTableBody.appendChild(row);
+      });
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = studentIdInput.value;
+      const name = nameInput.value.trim();
+      const age = parseInt(ageInput.value);
+      const course = courseInput.value.trim();
+
+      if (!name || isNaN(age) || !course) {
+        showError('Please fill in all fields correctly.');
+        return;
+      }
+
+      const studentData = { name, age, course };
+
+      try {
+        showLoading(true);
+        showError();
+        const res = await fetch(id ? `${API_URL}/${id}` : API_URL, {
+          method: id ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(studentData)
+        });
+        await res.json();
+        resetForm();
+        fetchStudents();
+      } catch {
+        showError('Failed to save student.');
+      } finally {
+        showLoading(false);
+      }
+    });
+
+    async function editStudent(id) {
+      try {
+        showLoading(true);
+        const res = await fetch(`${API_URL}/${id}`);
+        const student = await res.json();
+        studentIdInput.value = student.id;
+        nameInput.value = student.name;
+        ageInput.value = student.age;
+        courseInput.value = student.course;
+      } catch {
+        showError('Failed to fetch student data.');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    async function deleteStudent(id) {
+      if (!confirm('Are you sure you want to delete this student?')) return;
+      try {
+        showLoading(true);
+        await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+        fetchStudents();
+      } catch {
+        showError('Failed to delete student.');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function resetForm() {
+      studentIdInput.value = '';
+      form.reset();
+      showError('');
+    }
+
+    fetchStudents();
+  </script>
+</body>
+</html>
