@@ -25,6 +25,7 @@
       padding: 12px;
       margin: 10px 0;
       font-size: 16px;
+      box-sizing: border-box;
     }
     button {
       width: 100%;
@@ -39,84 +40,157 @@
     button:hover {
       background-color: #218838;
     }
+    button:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
     .message {
       margin-top: 15px;
       text-align: center;
       font-weight: bold;
+      padding: 10px;
+      border-radius: 4px;
     }
     .success {
-      color: green;
+      color: white;
+      background-color: #28a745;
     }
     .error {
-      color: red;
+      color: white;
+      background-color: #dc3545;
+    }
+    .loading {
+      color: white;
+      background-color: #007bff;
     }
   </style>
 </head>
 <body>
-
+  
   <h2>User Registration</h2>
-
+  
   <form id="registrationForm">
     <input type="text" id="name" placeholder="Full Name" required />
     <input type="email" id="email" placeholder="Email" required />
     <input type="password" id="password" placeholder="Password" required />
-    <button type="submit">Register</button>
-    <div id="message" class="message"></div>
+    <button type="submit" id="submitBtn">Register</button>
+    <div id="message" class="message" style="display: none;"></div>
   </form>
 
   <script>
-    const API_URL = "https://6888faccadf0e59551bc1c3c.mockapi.io/api/reagistration";
+  const API_URL = "https://6888faccadf0e59551bc1c3c.mockapi.io/api/reagistration";
 
-    document.getElementById("registrationForm").addEventListener("submit", async function(event) {
-      event.preventDefault();
+  function showMessage(text, type) {
+    const messageDiv = document.getElementById("message");
+    messageDiv.textContent = text;
+    messageDiv.className = `message ${type}`;
+    messageDiv.style.display = "block";
+    console.log(`Message: ${text} (${type})`);
+  }
 
-      const name = document.getElementById("name").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const messageDiv = document.getElementById("message");
+  function hideMessage() {
+    const messageDiv = document.getElementById("message");
+    messageDiv.style.display = "none";
+  }
 
-      messageDiv.textContent = "";
-      messageDiv.className = "message";
-
-      if (!name || !email || !password) {
-        messageDiv.textContent = "Please fill out all fields.";
-        messageDiv.classList.add("error");
+  document.getElementById("registrationForm").addEventListener("submit", async function(event) {
+    event.preventDefault();
+    
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim().toLowerCase();
+    const password = document.getElementById("password").value.trim();
+    const submitBtn = document.getElementById("submitBtn");
+    
+    console.log("Form submitted with:", { name, email, password: "***" });
+    
+    // Hide previous messages
+    hideMessage();
+    
+    // Basic validation
+    if (!name || !email || !password) {
+      showMessage("Please fill out all fields.", "error");
+      return;
+    }
+    
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      showMessage("Please enter a valid email address.", "error");
+      return;
+    }
+    
+    // Disable submit button
+    submitBtn.disabled = true;
+    showMessage("Processing registration...", "loading");
+    
+    try {
+      console.log("Starting registration process...");
+      
+      // Step 1: Check for existing users
+      console.log("Checking for existing users...");
+      let emailExists = false;
+      
+      try {
+        const checkResponse = await fetch(API_URL);
+        console.log("Check response status:", checkResponse.status);
+        
+        if (checkResponse.ok) {
+          const existingUsers = await checkResponse.json();
+          console.log("Existing users data:", existingUsers);
+          
+          if (Array.isArray(existingUsers)) {
+            emailExists = existingUsers.some(user => 
+              user && user.email && user.email.toLowerCase() === email
+            );
+            console.log("Email exists:", emailExists);
+          }
+        }
+      } catch (checkError) {
+        console.log("Error checking existing users:", checkError);
+        // Continue with registration even if check fails
+      }
+      
+      if (emailExists) {
+        showMessage("Email is already registered. Please use a different email.", "error");
         return;
       }
-
-      try {
-        // Step 1: Check if email already exists
-        const checkResponse = await fetch(`${API_URL}?email=${email}`);
-        const existingUsers = await checkResponse.json();
-
-        if (existingUsers.length > 0) {
-          messageDiv.textContent = "Email is already registered.";
-          messageDiv.classList.add("error");
-          return;
-        }
-
-        // Step 2: Proceed with registration
-        const response = await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ name, email, password })
-        });
-
-        if (!response.ok) {
-          throw new Error("Registration failed.");
-        }
-
-        messageDiv.textContent = "Registration successful!";
-        messageDiv.classList.add("success");
+      
+      // Step 2: Register new user
+      console.log("Attempting to register new user...");
+      showMessage("Creating your account...", "loading");
+      
+      const registerResponse = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name, email, password })
+      });
+      
+      console.log("Registration response status:", registerResponse.status);
+      console.log("Registration response ok:", registerResponse.ok);
+      
+      if (registerResponse.ok) {
+        const result = await registerResponse.json();
+        console.log("Registration successful! Result:", result);
+        
+        showMessage(`Registration successful! Welcome, ${name}!`, "success");
         document.getElementById("registrationForm").reset();
-      } catch (error) {
-        messageDiv.textContent = error.message || "An error occurred.";
-        messageDiv.classList.add("error");
+      } else {
+        const errorText = await registerResponse.text();
+        console.error("Registration failed:", registerResponse.status, errorText);
+        showMessage("Registration failed. Please try again.", "error");
       }
-    });
+      
+    } catch (error) {
+      console.error("Unexpected error:", error);
+      showMessage("Something went wrong. Please try again.", "error");
+    } finally {
+      submitBtn.disabled = false;
+      console.log("Registration process completed");
+    }
+  });
   </script>
-
+  
 </body>
 </html>
