@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background: #f5f5f5;
+      max-width: 800px;
+      margin: auto;
+    }
+    h2 {
+      text-align: center;
+    }
+    .form-section, .list-section {
+      background: white;
+      padding: 20px;
+      margin-bottom: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    input {
+      padding: 10px;
+      margin-right: 10px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 15px;
+      background-color: #28a745;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    .message {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .error {
+      color: red;
+    }
+    .success {
+      color: green;
+    }
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+    li {
+      margin: 10px 0;
+      padding: 10px;
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>User Dashboard</h2>
+
+  <div class="form-section">
+    <h3>Add New User</h3>
+    <input type="text" id="name" placeholder="Name" required />
+    <input type="email" id="email" placeholder="Email" required />
+    <button onclick="addUser()">Add User</button>
+    <div id="formMessage" class="message"></div>
+  </div>
+
+  <div class="list-section">
+    <h3>Registered Users</h3>
+    <ul id="userList">
+      <!-- Users will be populated here -->
+    </ul>
+  </div>
+
+  <script>
+    const API_URL = "https://6888faccadf0e59551bc1c3c.mockapi.io/api/reagistration";
+    const userList = document.getElementById("userList");
+    const formMessage = document.getElementById("formMessage");
+
+    async function fetchUsers() {
+      try {
+        const res = await fetch(API_URL);
+        const users = await res.json();
+
+        userList.innerHTML = "";
+        users.forEach(user => {
+          const li = document.createElement("li");
+          li.innerHTML = `<strong>${user.name}</strong> — ${user.email}`;
+          userList.appendChild(li);
+        });
+      } catch (error) {
+        userList.innerHTML = "<li style='color:red;'>Failed to load users.</li>";
+        console.error(error);
+      }
+    }
+
+    async function addUser() {
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim().toLowerCase();
+      formMessage.textContent = "";
+      formMessage.className = "message";
+
+      if (!name || !email) {
+        formMessage.textContent = "All fields are required.";
+        formMessage.classList.add("error");
+        return;
+      }
+
+      try {
+        // Check for duplicate email
+        const existingRes = await fetch(API_URL);
+        const existingUsers = await existingRes.json();
+        const duplicate = existingUsers.some(u => u.email.toLowerCase() === email);
+
+        if (duplicate) {
+          formMessage.textContent = "Email already exists.";
+          formMessage.classList.add("error");
+          return;
+        }
+
+        // POST new user
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email })
+        });
+
+        if (!res.ok) throw new Error("Failed to add user");
+
+        const newUser = await res.json();
+        formMessage.textContent = "User added successfully!";
+        formMessage.classList.add("success");
+
+        // Add to UI
+        const li = document.createElement("li");
+        li.innerHTML = `<strong>${newUser.name}</strong> — ${newUser.email}`;
+        userList.appendChild(li);
+
+        // Clear inputs
+        document.getElementById("name").value = "";
+        document.getElementById("email").value = "";
+
+      } catch (error) {
+        formMessage.textContent = "Something went wrong.";
+        formMessage.classList.add("error");
+        console.error(error);
+      }
+    }
+
+    // Load users on page load
+    fetchUsers();
+  </script>
+
+</body>
+</html>
