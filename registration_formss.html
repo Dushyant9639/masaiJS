@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Registration</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background: #f0f0f0;
+      max-width: 500px;
+      margin: auto;
+    }
+    h2 {
+      text-align: center;
+    }
+    form {
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #28a745;
+      color: white;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    .message {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: bold;
+    }
+    .success {
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>User Registration</h2>
+
+  <form id="registrationForm">
+    <input type="text" id="name" placeholder="Full Name" required />
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <button type="submit">Register</button>
+    <div id="message" class="message"></div>
+  </form>
+
+  <script>
+    const API_URL = "https://6888faccadf0e59551bc1c3c.mockapi.io/api/reagistration";
+
+    document.getElementById("registrationForm").addEventListener("submit", async function(event) {
+      event.preventDefault();
+
+      const name = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const messageDiv = document.getElementById("message");
+
+      messageDiv.textContent = "";
+      messageDiv.className = "message";
+
+      if (!name || !email || !password) {
+        messageDiv.textContent = "Please fill out all fields.";
+        messageDiv.classList.add("error");
+        return;
+      }
+
+      try {
+        // Step 1: Check if email already exists
+        const checkResponse = await fetch(`${API_URL}?email=${email}`);
+        const existingUsers = await checkResponse.json();
+
+        if (existingUsers.length > 0) {
+          messageDiv.textContent = "Email is already registered.";
+          messageDiv.classList.add("error");
+          return;
+        }
+
+        // Step 2: Proceed with registration
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ name, email, password })
+        });
+
+        if (!response.ok) {
+          throw new Error("Registration failed.");
+        }
+
+        messageDiv.textContent = "Registration successful!";
+        messageDiv.classList.add("success");
+        document.getElementById("registrationForm").reset();
+      } catch (error) {
+        messageDiv.textContent = error.message || "An error occurred.";
+        messageDiv.classList.add("error");
+      }
+    });
+  </script>
+
+</body>
+</html>
