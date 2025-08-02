@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Feedback Form</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    form {
+      max-width: 400px;
+      margin-bottom: 20px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 10px 20px;
+    }
+    #message {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Submit Feedback</h2>
+  <form id="feedbackForm">
+    <label>Username:</label>
+    <input type="text" id="username" required />
+    
+    <label>Message:</label>
+    <textarea id="messageText" rows="5" required></textarea>
+    
+    <button type="submit">Submit Feedback</button>
+  </form>
+
+  <p id="message"></p>
+
+  <script>
+    const form = document.getElementById('feedbackForm');
+    const messageEl = document.getElementById('message');
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const username = document.getElementById('username').value.trim();
+      const message = document.getElementById('messageText').value.trim();
+
+      if (!username || !message) {
+        messageEl.textContent = "Please fill out all fields.";
+        messageEl.style.color = "red";
+        return;
+      }
+
+      const feedback = { username, message };
+
+      fetch('https://projectsdatabase-e4bae-default-rtdb.asia-southeast1.firebasedatabase.app/feedback.json', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(feedback)
+      })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return res.json();
+      })
+      .then(data => {
+        messageEl.textContent = "Feedback submitted successfully!";
+        messageEl.style.color = "green";
+        form.reset();
+      })
+      .catch(error => {
+        messageEl.textContent = "Error submitting feedback: " + error.message;
+        messageEl.style.color = "red";
+      });
+    });
+  </script>
+
+</body>
+</html>
