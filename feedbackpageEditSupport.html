@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Feedback Form with Edit</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+    }
+    form {
+      max-width: 400px;
+      margin-bottom: 20px;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 10px 20px;
+    }
+    #message {
+      font-weight: bold;
+    }
+    .feedback {
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+    }
+    .feedback h4 {
+      margin: 0;
+    }
+    .feedback p {
+      margin: 5px 0;
+    }
+    .edit-btn {
+      margin-top: 10px;
+      padding: 6px 12px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .edit-btn:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <h2 id="formTitle">Submit Feedback</h2>
+  <form id="feedbackForm">
+    <label>Username:</label>
+    <input type="text" id="username" required />
+    
+    <label>Message:</label>
+    <textarea id="messageText" rows="5" required></textarea>
+    
+    <button type="submit">Submit Feedback</button>
+    <button type="button" id="cancelEditBtn" style="display:none; margin-left:10px;">Cancel Edit</button>
+  </form>
+
+  <p id="message"></p>
+
+  <h3>All Feedback</h3>
+  <div id="feedbackList"></div>
+
+  <script>
+    const DB_URL = 'https://projectsdatabase-e4bae-default-rtdb.asia-southeast1.firebasedatabase.app/feedback';
+
+    const form = document.getElementById('feedbackForm');
+    const messageEl = document.getElementById('message');
+    const feedbackList = document.getElementById('feedbackList');
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+    const formTitle = document.getElementById('formTitle');
+
+    let editMode = false;
+    let editId = null;
+
+    form.addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const username = document.getElementById('username').value.trim();
+      const message = document.getElementById('messageText').value.trim();
+
+      if (!username || !message) {
+        messageEl.textContent = "Please fill out all fields.";
+        messageEl.style.color = "red";
+        return;
+      }
+
+      const feedback = { username, message };
+
+      if (editMode && editId) {
+        // PATCH request to update feedback
+        fetch(`${DB_URL}/${editId}.json`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(feedback)
+        })
+        .then(res => res.json())
+        .then(() => {
+          resetForm("Feedback updated successfully!", "green");
+          loadFeedback();
+        })
+        .catch(err => showError(err));
+      } else {
+        // POST request to add feedback
+        fetch(`${DB_URL}.json`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(feedback)
+        })
+        .then(res => res.json())
+        .then(() => {
+          resetForm("Feedback submitted successfully!", "green");
+          loadFeedback();
+        })
+        .catch(err => showError(err));
+      }
+    });
+
+    cancelEditBtn.addEventListener('click', () => {
+      resetForm("Edit cancelled.", "gray");
+    });
+
+    function loadFeedback() {
+      fetch(`${DB_URL}.json`)
+        .then(res => res.json())
+        .then(data => {
+          feedbackList.innerHTML = "";
+          if (!data) {
+            feedbackList.innerHTML = "<p>No feedback yet.</p>";
+            return;
+          }
+
+          // Display entries
+          Object.entries(data).reverse().forEach(([id, entry]) => {
+            const div = document.createElement("div");
+            div.className = "feedback";
+            div.innerHTML = `
+              <h4>${entry.username}</h4>
+              <p>${entry.message}</p>
+              <button class="edit-btn" onclick="editFeedback('${id}', '${entry.username}', \`${entry.message.replace(/`/g, "\\`")}\`)">Edit</button>
+            `;
+            feedbackList.appendChild(div);
+          });
+        })
+        .catch(err => {
+          feedbackList.innerHTML = `<p style="color:red;">Error loading feedback: ${err.message}</p>`;
+        });
+    }
+
+    // Global function for inline button
+    window.editFeedback = function(id, username, message) {
+      document.getElementById('username').value = username;
+      document.getElementById('messageText').value = message;
+      formTitle.textContent = "Edit Feedback";
+      cancelEditBtn.style.display = "inline";
+      editMode = true;
+      editId = id;
+    };
+
+    function resetForm(msg, color) {
+      form.reset();
+      editMode = false;
+      editId = null;
+      formTitle.textContent = "Submit Feedback";
+      cancelEditBtn.style.display = "none";
+      messageEl.textContent = msg;
+      messageEl.style.color = color;
+    }
+
+    function showError(err) {
+      messageEl.textContent = "Error: " + err.message;
+      messageEl.style.color = "red";
+    }
+
+    loadFeedback();
+  </script>
+
+</body>
+</html>
