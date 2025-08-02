@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IdeaHub</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body{
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: aliceblue;
+            margin: 0;
+            padding: 20px;
+        }
+        .container{
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.919);
+            margin: auto;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        h1{
+            text-align: center;
+            color: orangered;
+        }
+        .subtitle{
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        .auth-section{
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .user-info{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .Submit_Idea{
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .form-group{
+            margin-bottom: 15px;
+        }
+        #idea-title, #idea-description, #user-input{
+            width: 90%;
+            padding: 10px;
+            align-content: center;
+            margin-left: 10px;
+        }
+        button{
+            width: 100px;
+            padding: 10px;
+            background-color: rgb(0, 157, 255);
+            border: none;
+            cursor: pointer;
+            color: white;
+            margin-left: 10px;
+        }
+        button:hover{
+            background-color: blue;
+        }
+        #Search-bar{
+            flex: 1;
+            border-radius: 25px;
+            width: 95%;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 15px;
+        }
+        #Search-bar:focus{
+            border-color: brown;
+        }
+        .controls{
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .idea-card{
+            background-color: beige;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .upvote{
+            cursor: pointer;
+            color: green;
+            font-weight: bold;
+        }
+        .stats{
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .stat-item{
+            background: red;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 100px;
+        }
+        .stat-number{
+            font-weight: bold;
+            display: block;
+            font-size: 1.5em;
+        }
+        .sort-select{
+            padding: 10px;
+            border: 2px solid yellowgreen;
+            background: white;
+            cursor: pointer;
+        }
+        .login-required{
+            background-color: #f8f9fa;
+            border: 1px solid burlywood;
+            color: aqua;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+    </style>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>
+           💡IdeaHub
+        </h1>
+    <div class="auth-section">
+        <div class="login-form">
+            <h3>
+                Join the Community
+            </h3>
+            <input type="text" id="Username-Input" placeholder="Enter your username"/>
+            <button onclick="login()" style="margin-top:10px;">Join IdeaHub</button>
+        </div>
+        <div id="user-info" class="user-info">
+            <span>Welcome ,<strong id="current-User"></strong>!</span>
+            <button onclick="logout()">Logout</button>
+        </div>
+    </div>
+    <div class="stats">
+        <div class="stat-item">
+            <span class="stat-number" id="total-ideas">0</span>
+            <span>Total Ideas</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-number" id="active-users">0</span>
+            <span>Contributors</span>
+        </div>
+    </div>
+    <div class="submit-section" style="display: none;">
+    <div class="Submit_Idea">
+        <div class="form-group">
+             <input type="text" id="idea-title" placeholder="Enter your creative Idea"/>
+        </div>
+        <div class="form-group">
+            <textarea id="idea-description" placeholder="Describe your Idea..."></textarea>
+        </div> 
+        <button onclick="SubmitIdea()">Submit Idea</button>
+    </div>
+    </div>
+    <div id="login-required" class="login-required">Please login to submit your ideas</div>
+    <div class="controls">
+          <input type="text" id="Search-bar" placeholder="Search Ideas.." onkeyup="filterideas()"/>
+          <select class="sort-select" id="sort-select" onchange="sortIdeas()">
+            <option value="newest">Newest First</option>
+            <option value="oldest">oldest First</option>
+            <option value="popular">Most Popular First</option>
+          </select>
+          </div>
+            <div id="idea-feed"></div> 
+  </div>
+</body>
+</html>
+<script>
+    const firebaseConfig = {
+    apiKey: "AIzaSyCcI0F6ekm-uZeyz6uTfUkX6P5jm2Unha4",
+    authDomain: "projectsdatabase-e4bae.firebaseapp.com",
+    databaseURL: "https://projectsdatabase-e4bae-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "projectsdatabase-e4bae",
+    storageBucket: "projectsdatabase-e4bae.firebasestorage.app",
+    messagingSenderId: "572259137624",
+    appId: "1:572259137624:web:1d154c07c46b9876f0722d",
+    measurementId: "G-L5GV8DX13S"
+  };
+  firebase.initializeApp(firebaseConfig)
+    let db= firebase.database();
+    let currentUser= null
+    function login(){
+        let username= document.getElementById('Username-Input').value
+        if(!username){
+            alert('please provide a valid Username')
+            return
+        }
+        currentUser= username
+        UpdateStats()
+    }
+    function logout(){
+        currentUser= null;
+        loadideas()
+    }
+ function SubmitIdea(){
+        let title= document.getElementById('idea-title').value;
+        let description= document.getElementById('idea-description').value;
+        let newIdearef= db.ref('ideas')
+        newIdearef.set({
+            title,
+            description,
+            upvotes: 0,
+            timestamp: Date.now()
+        });
+        document.getElementById('idea-title').value="";
+        document.getElementById('idea-description').value=""
+    }
+    function loadideas(){
+        db.ref('ideas').on('value',snapshot =>{
+            let ideas= snapshot.val()
+            let feed= document.getElementById('idea-feed');
+            feed.innerHTML='';
+
+            for(let id in ideas){
+                let idea= ideas[id];
+                let card= document.createElement('div')
+                card.className='idea-card'
+                card.innerHTML=`
+                <h3>${idea.title}</h3>
+                <p>${idea.description}</p>
+                <span class="upvote" onclick="upvoteIdea('${id}',${idea.upvotes})"> ${idea.upvotes}</span>
+                `
+                feed.appendChild(card)
+            }
+        })
+    }
+
+    function sortIdeas(){
+        let sortBy= document.getElementById('sort-select').value;
+        switch(sortBy){
+            case 'newest':
+                ideas.sort((a,b)=>b.timestamp-a.timestamp)
+                break
+            case 'oldest':
+                ideas.sort((a,b)=>a.timestamp-b.timestamp)
+                break
+            case 'popular':
+                idea.sort((a,b)=>a.upvotes-b.upvotes)
+                break;
+        }
+        loadideas()
+    }
+    function filterIdeas(){
+        let SearchText= document.getElementById('Search-bar').value.toLowerCase()
+        let cards= document.querySelectorAll('idea-card');
+
+        cards.forEach(card=>{
+            let text= card.textContent.toLowerCase()
+            card.style.display= text.includes(SearchText)?'block': 'none';
+        })
+    }
+    window.onload = function(){
+        loadideas()
+        UpdateStats()
+        document.getElementById('login-required')
+    }
+</script>
