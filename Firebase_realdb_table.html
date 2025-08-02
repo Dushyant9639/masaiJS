@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Firebase User List</title>
+  <style>
+    table {
+      width: 60%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      font-family: Arial, sans-serif;
+    }
+    th, td {
+      border: 1px solid #aaa;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    #error {
+      color: red;
+      text-align: center;
+      font-family: Arial, sans-serif;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2 style="text-align:center;">User List</h2>
+  <table id="userTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- User rows will be inserted here -->
+    </tbody>
+  </table>
+
+  <p id="error"></p>
+
+  <script>
+    fetch('https://projectsdatabase-e4bae-default-rtdb.asia-southeast1.firebasedatabase.app/users.json')
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        const tbody = document.querySelector("#userTable tbody");
+        if (!data) {
+          document.getElementById("error").textContent = "No users found.";
+          return;
+        }
+
+        Object.values(data).forEach(user => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${user.name}</td>
+            <td>${user.email}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      })
+      .catch((error) => {
+        document.getElementById("error").textContent = "Error loading users: " + error.message;
+      });
+  </script>
+
+</body>
+</html>
