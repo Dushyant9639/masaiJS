@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Novel Library (Realtime DB)</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { padding: 8px; border: 1px solid #ccc; text-align: left; }
+    input, select { padding: 6px; margin-right: 10px; }
+  </style>
+</head>
+<body>
+
+  <h2>📚 Novel Library</h2>
+
+  <div>
+    <label>Search: <input type="text" id="search" placeholder="Title or Author"></label>
+    <label>Filter Year:
+      <select id="yearFilter">
+        <option value="">All</option>
+        <option value="2019">2019</option>
+        <option value="2020">2020</option>
+        <option value="2021">2021</option>
+        <option value="2022">2022</option>
+      </select>
+    </label>
+    <label>Sort Price:
+      <select id="sortPrice">
+        <option value="">None</option>
+        <option value="asc">Low to High</option>
+        <option value="desc">High to Low</option>
+      </select>
+    </label>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Title</th><th>Author</th><th>Price</th><th>Year</th><th>Genre</th>
+      </tr>
+    </thead>
+    <tbody id="novelList"></tbody>
+  </table>
+
+  <script>
+    const API_URL = "https://projectsdatabase-e4bae-default-rtdb.asia-southeast1.firebasedatabase.app/novels.json";
+
+    const novelList = document.getElementById("novelList");
+    const searchInput = document.getElementById("search");
+    const yearFilter = document.getElementById("yearFilter");
+    const sortPrice = document.getElementById("sortPrice");
+
+    let allNovels = [];
+
+    function renderRow(novel) {
+      return `
+        <tr>
+          <td>${novel.title}</td>
+          <td>${novel.author}</td>
+          <td>$${novel.price.toFixed(2)}</td>
+          <td>${novel.release_year}</td>
+          <td>${novel.genre}</td>
+        </tr>
+      `;
+    }
+
+    function filterAndRender() {
+      let filtered = [...allNovels];
+
+      const search = searchInput.value.toLowerCase().trim();
+      const year = yearFilter.value;
+      const sortOrder = sortPrice.value;
+
+      // Filter by search
+      if (search) {
+        filtered = filtered.filter(novel =>
+          novel.title.toLowerCase().includes(search) ||
+          novel.author.toLowerCase().includes(search)
+        );
+      }
+
+      // Filter by year
+      if (year) {
+        filtered = filtered.filter(novel => novel.release_year == year);
+      }
+
+      // Sort by price
+      if (sortOrder === "asc") {
+        filtered.sort((a, b) => a.price - b.price);
+      } else if (sortOrder === "desc") {
+        filtered.sort((a, b) => b.price - a.price);
+      }
+
+      // Render
+      novelList.innerHTML = filtered.map(renderRow).join('') || `<tr><td colspan="5">No novels found.</td></tr>`;
+    }
+
+    async function fetchNovels() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+
+        // Convert { id1: {...}, id2: {...} } to array
+        allNovels = Object.values(data || {});
+        filterAndRender();
+      } catch (err) {
+        novelList.innerHTML = `<tr><td colspan="5">❌ Error: ${err.message}</td></tr>`;
+      }
+    }
+
+    // Listeners
+    searchInput.addEventListener("input", filterAndRender);
+    yearFilter.addEventListener("change", filterAndRender);
+    sortPrice.addEventListener("change", filterAndRender);
+
+    // Initial Load
+    fetchNovels();
+  </script>
+
+</body>
+</html>
