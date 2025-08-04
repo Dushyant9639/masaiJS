@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sorted Products (Users)</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f0f4f8;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  max-width: 800px;
+  margin: auto;
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.controls {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.product-list {
+  display: grid;
+  gap: 15px;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  transition: box-shadow 0.2s;
+}
+
+.card:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Product List (Users)</h1>
+
+    <div class="controls">
+      <label for="sortSelect">Sort by:</label>
+      <select id="sortSelect">
+        <option value="name-asc">Name ↑ (A-Z)</option>
+        <option value="name-desc">Name ↓ (Z-A)</option>
+      </select>
+    </div>
+
+    <div id="product-list" class="product-list"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+<script>
+  // Get references to DOM elements
+const productList = document.getElementById('product-list');
+const sortSelect = document.getElementById('sortSelect');
+
+// Base API URL
+const BASE_URL = 'https://jsonplaceholder.typicode.com/users';
+
+/**
+ * Fetches and displays users sorted by the given criteria
+ * @param {string} sortField - The field to sort by (e.g., 'name')
+ * @param {string} order - The order of sorting ('asc' or 'desc')
+ */
+async function fetchAndDisplayProducts(sortField = 'name', order = 'asc') {
+  try {
+    // Clear current list
+    productList.innerHTML = '<p>Loading...</p>';
+
+    // Fetch sorted users
+    const response = await fetch(`${BASE_URL}?_sort=${sortField}&_order=${order}`);
+    if (!response.ok) throw new Error('Failed to fetch user data');
+
+    const users = await response.json();
+    displayProducts(users);
+
+  } catch (error) {
+    productList.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+  }
+}
+
+/**
+ * Renders the user data as cards
+ * @param {Array} products - Array of user objects
+ */
+function displayProducts(products) {
+  productList.innerHTML = ''; // Clear previous content
+
+  products.forEach(user => {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    card.innerHTML = `
+      <h3>${user.name}</h3>
+      <p><strong>Email:</strong> ${user.email}</p>
+      <p><strong>City:</strong> ${user.address.city}</p>
+    `;
+
+    productList.appendChild(card);
+  });
+}
+
+/**
+ * Handles sorting option change
+ */
+sortSelect.addEventListener('change', () => {
+  const [field, order] = sortSelect.value.split('-');
+  fetchAndDisplayProducts(field, order);
+});
+
+// Initial load
+fetchAndDisplayProducts('name', 'asc');
+
+</script>
