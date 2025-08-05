@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Picsum Image Slider</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 30px;
+    }
+
+    img {
+      width: 600px;
+      height: 400px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 10px;
+      cursor: pointer;
+    }
+
+    #slide-number {
+      font-size: 18px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📸 Throttled Picsum Image Slider</h2>
+  <img id="slider" src="https://picsum.photos/600/400?random=1" alt="Random Image">
+  <div>
+    <button id="prev">Previous</button>
+    <button id="next">Next</button>
+  </div>
+  <div id="slide-number">Slide 1</div>
+
+  <script>
+    const img = document.getElementById('slider');
+    const prevBtn = document.getElementById('prev');
+    const nextBtn = document.getElementById('next');
+    const slideNumber = document.getElementById('slide-number');
+
+    let currentSlide = 1;
+    let lastClickTime = 0;
+    let clickCount = 0;
+    let isThrottled = false;
+
+    function updateSlide(direction) {
+      if (isThrottled) {
+        clickCount++;
+        if (clickCount > 3) {
+          alert("Chill chill, loading it!!");
+          clickCount = 0; // Reset count after alert
+        }
+        return;
+      }
+
+      isThrottled = true;
+      clickCount = 1; // First valid click in this window
+
+      if (direction === 'next') {
+        currentSlide++;
+      } else if (direction === 'prev' && currentSlide > 1) {
+        currentSlide--;
+      }
+
+      img.src = `https://picsum.photos/600/400?random=${Date.now()}`;
+      slideNumber.textContent = `Slide ${currentSlide}`;
+
+      setTimeout(() => {
+        isThrottled = false;
+        clickCount = 0;
+      }, 1000); // 1-second throttle
+    }
+
+    nextBtn.addEventListener('click', () => updateSlide('next'));
+    prevBtn.addEventListener('click', () => updateSlide('prev'));
+  </script>
+
+</body>
+</html>
