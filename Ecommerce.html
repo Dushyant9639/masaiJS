@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Role-Based E-Commerce Panel</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    section { display: none; }
+    img { width: 100px; }
+  </style>
+</head>
+<body>
+  <h1>E-Commerce Role-Based Panel</h1>
+
+  <!-- Register -->
+  <section id="registerSection">
+    <h2>Register</h2>
+    <input type="email" id="regEmail" placeholder="Email"><br>
+    <input type="password" id="regPassword" placeholder="Password"><br>
+    <select id="regRole">
+      <option value="user">User</option>
+      <option value="admin">Admin</option>
+    </select><br>
+    <button onclick="register()">Register</button>
+    <p>Already have an account? <a href="#" onclick="showSection('loginSection')">Login</a></p>
+  </section>
+
+  <!-- Login -->
+  <section id="loginSection">
+    <h2>Login</h2>
+    <input type="email" id="loginEmail" placeholder="Email"><br>
+    <input type="password" id="loginPassword" placeholder="Password"><br>
+    <button onclick="login()">Login</button>
+    <p>Don't have an account? <a href="#" onclick="showSection('registerSection')">Register</a></p>
+  </section>
+
+  <!-- Admin Dashboard -->
+  <section id="adminDashboard">
+    <h2>Admin Dashboard</h2>
+    <button onclick="logout()">Logout</button>
+    <h3>Add Product</h3>
+    <input type="text" id="productTitle" placeholder="Title"><br>
+    <input type="number" id="productPrice" placeholder="Price"><br>
+    <input type="text" id="productImage" placeholder="Image URL"><br>
+    <button onclick="addProduct()">Add Product</button>
+    <h3>Products</h3>
+    <div id="adminProductList"></div>
+  </section>
+
+  <!-- User Dashboard -->
+  <section id="userDashboard">
+    <h2>User Dashboard</h2>
+    <button onclick="logout()">Logout</button>
+    <h3>Products</h3>
+    <div id="userProductList"></div>
+  </section>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script>
+   const firebaseConfig = {
+    apiKey: "AIzaSyBEml970yKqMQTiOxSDMEc25GbukADIBWs",
+    authDomain: "autheriseddb.firebaseapp.com",
+    projectId: "autheriseddb",
+    storageBucket: "autheriseddb.firebasestorage.app",
+    messagingSenderId: "852748564065",
+    appId: "1:852748564065:web:676a2d9b5c60fb20271c20",
+    measurementId: "G-3YVR5H0WS6"
+  };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    // 🔄 Navigation
+    function showSection(id) {
+      document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+      document.getElementById(id).style.display = 'block';
+    }
+
+    // 📝 Register
+    function register() {
+      const email = document.getElementById("regEmail").value;
+      const password = document.getElementById("regPassword").value;
+      const role = document.getElementById("regRole").value;
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(user => {
+          const uid = user.user.uid;
+          return db.ref("users/" + uid).set({ email, role });
+        })
+        .then(() => {
+          alert("Registration successful! Please log in.");
+          showSection('loginSection');
+        })
+        .catch(err => alert(err.message));
+    }
+
+    // 🔐 Login
+    function login() {
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(user => {
+          const uid = user.user.uid;
+          return db.ref("users/" + uid).once('value');
+        })
+        .then(snapshot => {
+          const role = snapshot.val().role;
+          localStorage.setItem("role", role);
+          localStorage.setItem("userId", snapshot.key);
+          if (role === "admin") {
+            showSection("adminDashboard");
+            loadProducts("admin");
+          } else {
+            showSection("userDashboard");
+            loadProducts("user");
+          }
+        })
+        .catch(() => alert("Incorrect email or password!"));
+    }
+
+    // ➕ Add Product
+    function addProduct() {
+      const title = document.getElementById("productTitle").value;
+      const price = parseFloat(document.getElementById("productPrice").value);
+      const image = document.getElementById("productImage").value;
+
+      db.ref("products").push({ title, price, image })
+        .then(() => {
+          alert("Product added!");
+          loadProducts("admin");
+        });
+    }
+
+    // 📥 Load Products
+    function loadProducts(role) {
+      db.ref("products").once("value", snap => {
+        const productList = role === "admin" ? "adminProductList" : "userProductList";
+        const container = document.getElementById(productList);
+        container.innerHTML = "";
+        snap.forEach(child => {
+          const p = child.val();
+          const id = child.key;
+          const div = document.createElement("div");
+          div.innerHTML = `
+            <hr>
+            <img src="${p.image}"><br>
+            <strong>${p.title}</strong><br>$${p.price}<br>
+            ${role === "admin" ? `
+              <button onclick="editProduct('${id}')">Edit</button>
+              <button onclick="deleteProduct('${id}')">Delete</button>
+            ` : ""}
+          `;
+          container.appendChild(div);
+        });
+      });
+    }
+
+    // ✏️ Edit Product
+    function editProduct(id) {
+      const newTitle = prompt("New Title:");
+      const newPrice = prompt("New Price:");
+      const newImage = prompt("New Image URL:");
+      if (newTitle && newPrice && newImage) {
+        db.ref("products/" + id).update({
+          title: newTitle,
+          price: parseFloat(newPrice),
+          image: newImage
+        }).then(() => {
+          alert("Product updated!");
+          loadProducts("admin");
+        });
+      }
+    }
+
+    // 🗑 Delete Product
+    function deleteProduct(id) {
+      db.ref("products/" + id).remove()
+        .then(() => {
+          alert("Product deleted!");
+          loadProducts("admin");
+        });
+    }
+
+    // 🚪 Logout
+    function logout() {
+      auth.signOut().then(() => {
+        localStorage.clear();
+        showSection("loginSection");
+      });
+    }
+
+    // 🚦 On Page Load
+    window.onload = () => {
+      const role = localStorage.getItem("role");
+      if (role === "admin") {
+        showSection("adminDashboard");
+        loadProducts("admin");
+      } else if (role === "user") {
+        showSection("userDashboard");
+        loadProducts("user");
+      } else {
+        showSection("loginSection");
+      }
+    };
+  </script>
+</body>
+</html>
