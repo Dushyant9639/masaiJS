@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>All-in-One App</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    .page { display: none; }
+    .active { display: block; }
+    input, button { margin: 5px 0; padding: 8px; width: 100%; }
+    #products img { width: 100px; }
+    .product { border-bottom: 1px solid #ccc; margin: 10px 0; padding: 10px; }
+  </style>
+</head>
+<body>
+
+  <h2 id="app-title">All-in-One App</h2>
+
+  <!-- Register Page -->
+  <div id="register" class="page active">
+    <h3>Register</h3>
+    <input type="text" id="regName" placeholder="Name" required>
+    <input type="email" id="regEmail" placeholder="Email" required>
+    <input type="password" id="regPassword" placeholder="Password" required>
+    <button onclick="register()">Register</button>
+    <p>Already have an account? <a href="#" onclick="switchPage('login')">Login here</a></p>
+  </div>
+
+  <!-- Login Page -->
+  <div id="login" class="page">
+    <h3>Login</h3>
+    <input type="email" id="loginEmail" placeholder="Email" required>
+    <input type="password" id="loginPassword" placeholder="Password" required>
+    <button onclick="login()">Login</button>
+    <p>Don't have an account? <a href="#" onclick="switchPage('register')">Register here</a></p>
+  </div>
+
+  <!-- Dashboard Page -->
+  <div id="dashboard" class="page">
+    <h3>Dashboard</h3>
+    <button onclick="logout()">Logout</button>
+    <div id="products"></div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  
+  <script>
+    // Firebase config (Replace with your own)
+ const firebaseConfig = {
+    apiKey: "AIzaSyBEml970yKqMQTiOxSDMEc25GbukADIBWs",
+    authDomain: "autheriseddb.firebaseapp.com",
+    projectId: "autheriseddb",
+    storageBucket: "autheriseddb.firebasestorage.app",
+    messagingSenderId: "852748564065",
+    appId: "1:852748564065:web:676a2d9b5c60fb20271c20",
+    measurementId: "G-3YVR5H0WS6"
+  };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    function switchPage(page) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(page).classList.add('active');
+      document.getElementById('app-title').innerText =
+        page === 'register' ? 'Register' :
+        page === 'login' ? 'Login' :
+        'Dashboard';
+    }
+
+    function register() {
+      const name = document.getElementById('regName').value;
+      const email = document.getElementById('regEmail').value;
+      const password = document.getElementById('regPassword').value;
+
+      if (!name || !email || !password) return alert("Please fill all fields");
+
+      const userRef = db.ref('users').push();
+      userRef.set({ name, email, password }, (err) => {
+        if (!err) {
+          alert("Registration Successful! Please log in.");
+          switchPage('login');
+        } else {
+          alert("Registration failed.");
+        }
+      });
+    }
+
+    function login() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      db.ref('users').once('value', snapshot => {
+        let found = false;
+        snapshot.forEach(child => {
+          const user = child.val();
+          if (user.email === email && user.password === password) {
+            localStorage.setItem('loggedInUser', child.key);
+            found = true;
+          }
+        });
+        if (found) {
+          showDashboard();
+        } else {
+          alert("Wrong credentials! Try again.");
+        }
+      });
+    }
+
+    function logout() {
+      localStorage.removeItem('loggedInUser');
+      switchPage('login');
+    }
+
+    function showDashboard() {
+      if (!localStorage.getItem('loggedInUser')) {
+        alert("You must be logged in.");
+        switchPage('login');
+        return;
+      }
+
+      switchPage('dashboard');
+      document.getElementById('products').innerHTML = "Loading products...";
+
+      fetch("https://fakestoreapi.com/products")
+        .then(res => res.json())
+        .then(data => {
+          const container = document.getElementById('products');
+          container.innerHTML = "";
+          data.forEach(p => {
+            const div = document.createElement('div');
+            div.className = 'product';
+            div.innerHTML = `
+              <h4>${p.title}</h4>
+              <img src="${p.image}">
+              <p><strong>$${p.price}</strong></p>
+            `;
+            container.appendChild(div);
+          });
+        });
+    }
+
+    // Auto-login if session exists
+    window.onload = function () {
+      if (localStorage.getItem('loggedInUser')) {
+        showDashboard();
+      } else {
+        switchPage('register');
+      }
+    };
+  </script>
+</body>
+</html>
